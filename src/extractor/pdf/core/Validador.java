@@ -51,7 +51,7 @@ public abstract class Validador {
             return false;
         }
 
-        // Compruebo que lo 8 primeros digitos sean numeros
+        // Compruebo que los 8 primeros digitos sean numeros
         for (int i = 0; i < 8; i++) {
 
             if (!Character.isDigit(entrada.charAt(i))) {
@@ -119,5 +119,70 @@ public abstract class Validador {
         }
 
         return toret;
+    }
+    
+    
+   
+    //entrada: es un String desde una mayúscula hasta la última letra seguida de espacio minúscula
+    //si la palabra después de espacio minúscula es :de los//de//del//de la//de las... y después 
+    //hay una mayúscula habría que seguir hasta el siguiente espacio minúscula
+    public boolean esNombre(String entrada) {
+
+        String array[] = entrada.split(" ");
+        int numPal = array.length;
+
+        //elimino las palabras de, del, la, los, las, y, do, da, dos, das, e del array
+        for (int i = 0; i < numPal; i++) {
+            if (array[i].equals("de") || array[i].equals("del") || array[i].equals("la")
+                    || array[i].equals("los") || array[i].equals("las") || array[i].equals("y")
+                    || array[i].equals("do") || array[i].equals("da") || array[i].equals("dos")
+                    || array[i].equals("das") || array[i].equals("e")) {
+                for (int e = i + 1; e < array.length; e++) {
+                    array[e - 1] = array[e];
+                }
+                numPal--;
+                i = i - 1;
+            }
+
+        }
+
+        for (int i = 0; i < numPal; i++) {
+            //compruebo que las palabras sobrantes empiezan por mayúscula
+            if (!esMayuscula(array[i], 0)) {
+                return false;
+            }
+            //compruebo que las demás letras sean minúsculas
+            for (int e = 1; e < array[i].length(); e++) {
+                if (!esMinuscula(array[i], e)) {
+                    //si no son minusculas puede ser -May
+                    try {
+                        if (array[i].charAt(e) == '-' && esMayuscula(array[i], e + 1)) {
+                            e++; //correcto y sigo verificando
+                        } else {
+                            return false;//Si no es minúscula ni -May
+                        }
+                    } catch (Exception exc) {
+                        return false;
+                    }
+                }
+            }
+
+        }
+
+        return true;
+    }
+
+    private boolean esMayuscula(String palabra, int pos) {
+        char letr = palabra.charAt(pos);
+        return ((letr >= 'A' && letr <= 'Z') || letr == 'Á'
+                || letr == 'É' || letr == 'Í' || letr == 'Ó' || letr == 'Ú');
+
+    }
+
+    private boolean esMinuscula(String palabra, int pos) {
+        char letr = palabra.charAt(pos);
+        return ((letr >= 'a' && letr <= 'z') || letr == 'á'
+                || letr == 'é' || letr == 'í' || letr == 'ó' || letr == 'ú');
+
     }
 }
