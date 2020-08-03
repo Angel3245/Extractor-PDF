@@ -8,6 +8,7 @@ package extractor.pdf.core;
 import java.io.File;
 import java.nio.file.*;
 import com.qoppa.pdfText.PDFText;
+import java.util.Vector;
 
 /**
  *
@@ -39,7 +40,7 @@ public class Archivo {
         String texto = "";
         
         try{
-            PDFText pdfText = new PDFText (this.getRuta(), null);
+            PDFText pdfText = new PDFText(this.getRuta(), null);
             
             texto = pdfText.getText();
         }
@@ -47,6 +48,19 @@ public class Archivo {
             System.out.println(exc);
         }
         
+        return texto;
+    }
+    
+    public Vector<String> pdfExtraeTextoPalabras(){
+        Vector<String> texto = new Vector<>();
+        try{
+            PDFText pdfText = new PDFText(this.getRuta(), null);
+            
+            texto = pdfText.getWords();
+        }
+        catch(com.qoppa.pdf.PDFException exc){
+            System.out.println(exc);
+        }
         return texto;
     }
 }
