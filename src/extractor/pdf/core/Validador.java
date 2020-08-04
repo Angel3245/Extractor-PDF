@@ -9,27 +9,25 @@ import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**Datos a validar:
- * 
- * - Nombre proveedor
-   - Cif proveedor
-
-   - Nombre cliente
-   - nif cliente
-
-   - numero factura
-   - fecha factura
-
-   - total factura
+/**
+ * Datos a validar:
+ *
+ * - Nombre proveedor - Cif proveedor
+ *
+ * - Nombre cliente - nif cliente
+ *
+ * - numero factura - fecha factura
+ *
+ * - total factura
  *
  * @author Angel
  */
-
 public abstract class Validador {
-    
-   
 
-    public boolean esDni(String entrada) {
+    public enum TipoUltCaracter { //para la función esCif
+            LETRA,NUMERO,AMBOS};
+    
+    public static boolean esDni(String entrada) {
         // Array con las letras posibles del dni en su posiciÃ³n
         char[] letraDni = {
             'T', 'R', 'W', 'A', 'G', 'M', 'Y', 'F', 'P', 'D', 'X', 'B', 'N', 'J', 'Z', 'S', 'Q', 'V', 'H', 'L', 'C', 'K', 'E'
@@ -76,7 +74,7 @@ public abstract class Validador {
 
     }
 
-    public boolean esNif(String entrada) { //Similar a la funciÃ³n anterior
+    public static boolean esNif(String entrada) { //Similar a la funciÃ³n anterior
         boolean toret = false;
         Pattern pattern = Pattern.compile("(\\d{1,8})([TRWAGMYFPDXBNJZSQVHLCKEtrwagmyfpdxbnjzsqvhlcke])");
         Matcher matcher = pattern.matcher(entrada);
@@ -96,17 +94,119 @@ public abstract class Validador {
         return toret;
     }
 
-    public boolean esFecha(String entrada) {
+    public static boolean esCif(String entrada) {
+
+        if (entrada != null) {
+            final String cifUP = entrada.toUpperCase();
+
+            if ("ABCDEFGHJKLMNPQRSUVW".indexOf(cifUP.charAt(0)) == -1) {
+                return false;
+            }
+
+            final Pattern mask = Pattern
+                    .compile("[ABCDEFGHJKLMNPQRSUVW][0-9]{7}[A-Z[0-9]]{1}");
+            final Matcher matcher = mask.matcher(cifUP);
+
+            if (!matcher.matches()) {
+                return false;
+            }
+
+            final char primerCar = cifUP.charAt(0);
+            final char ultimoCar = cifUP.charAt(cifUP.length() - 1);
+
+            TipoUltCaracter tipUltCar;
+
+            if (primerCar == 'P' || primerCar == 'Q' || primerCar == 'S' || primerCar == 'K' || primerCar == 'W') {
+                tipUltCar = TipoUltCaracter.LETRA;
+                if (!(ultimoCar >= 'A' && ultimoCar <= 'Z')) {
+                    return false;
+                }
+
+            } else if (primerCar == 'A' || primerCar == 'B' || primerCar == 'E'
+                    || primerCar == 'H') {
+                tipUltCar = TipoUltCaracter.NUMERO;
+                if (!(ultimoCar >= '0' && ultimoCar <= '9')) {
+                    return false;
+                }
+
+            } else {
+                tipUltCar = TipoUltCaracter.AMBOS;
+            }
+
+            final String digitos = cifUP.substring(1, cifUP.length() - 1);
+
+            Integer sumaPares = 0;
+            for (int i = 1; i <= digitos.length() - 1; i = i + 2) {
+                sumaPares += Integer.parseInt(digitos.substring(i, i + 1));
+            }
+
+            Integer sumaImpares = 0;
+            for (int i = 0; i <= digitos.length() - 1; i = i + 2) {
+                Integer cal = Integer.parseInt(digitos.substring(i, i + 1)) * 2;
+                if (cal.toString().length() > 1) {
+                    cal = Integer.parseInt(cal.toString().substring(0, 1))
+                            + Integer.parseInt(cal.toString().substring(1, 2));
+                }
+                sumaImpares += cal;
+            }
+
+            final Integer total = sumaPares + sumaImpares;
+
+            Integer numControl = 10 - (total % 10);
+
+            /*if (numControl == 10){
+            numControl = 0;
+            }*/
+            int pos = numControl == 10 ? 0 : numControl;
+
+            final char carControl = "JABCDEFGHI".charAt(pos);
+
+            if (tipUltCar == TipoUltCaracter.NUMERO) {
+
+                final Integer ultCar = Integer.parseInt(Character
+                        .toString(ultimoCar));
+                if (pos != ultCar.intValue()) {
+
+                    return false;
+                }
+
+            } else if (tipUltCar == TipoUltCaracter.LETRA) {
+                if (carControl != ultimoCar) {
+                    return false;
+                }
+
+            } else {
+                // find all occurrences forward
+                Integer ultCar = -1;
+
+                ultCar = "JABCDEFGHI".indexOf(ultimoCar);
+
+                if (ultCar < 0) {
+                    ultCar = Integer.parseInt(Character.toString(ultimoCar));
+                    if (pos != ultCar.intValue()) {
+                        return false;
+                    }
+                }
+                if ((pos != ultCar.intValue()) && (carControl != ultimoCar)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean esFecha(String entrada) {
         boolean toret = false;
         String[] fecha;
 
         try {
             fecha = entrada.split("/");
-            
-            if(fecha.length != 3){
+
+            if (fecha.length != 3) {
                 return false;
             }
-            
+
             //Formato de fecha (dÃ­a/mes/aÃ±o)
             SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
             formatoFecha.setLenient(false);
@@ -120,13 +220,11 @@ public abstract class Validador {
 
         return toret;
     }
-    
-    
-   
+
     //entrada: es un String desde una mayúscula hasta la última letra seguida de espacio minúscula
     //si la palabra después de espacio minúscula es :de los//de//del//de la//de las... y después 
     //hay una mayúscula habría que seguir hasta el siguiente espacio minúscula
-    public boolean esNombre(String entrada) {
+    public static boolean esNombre(String entrada) {
 
         String array[] = entrada.split(" ");
         int numPal = array.length;
@@ -172,14 +270,14 @@ public abstract class Validador {
         return true;
     }
 
-    private boolean esMayuscula(String palabra, int pos) {
+    private static boolean esMayuscula(String palabra, int pos) {
         char letr = palabra.charAt(pos);
         return ((letr >= 'A' && letr <= 'Z') || letr == 'Á'
                 || letr == 'É' || letr == 'Í' || letr == 'Ó' || letr == 'Ú');
 
     }
 
-    private boolean esMinuscula(String palabra, int pos) {
+    private static boolean esMinuscula(String palabra, int pos) {
         char letr = palabra.charAt(pos);
         return ((letr >= 'a' && letr <= 'z') || letr == 'á'
                 || letr == 'é' || letr == 'í' || letr == 'ó' || letr == 'ú');
