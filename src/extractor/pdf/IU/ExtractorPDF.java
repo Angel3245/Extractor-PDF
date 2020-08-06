@@ -83,6 +83,12 @@ public class ExtractorPDF {
      * @param numArchivo el archivo que estamos analizando, como int
      */
     private static void analizaPalabra(String palabra, int numArchivo){
+
+        if(fechaFactura.size() == numArchivo && Validador.esFecha(palabra)){ //comprobamos que no haya otra fechaañadido procedente de este archivo y comprobamos que la palabra sea una fecha
+            fechaFactura.add(palabra);
+        }
+        
+        palabra = soloCaracteresAlfanumericos(palabra);
         if(nombreProveedor.size() == numArchivo && Validador.esNombre(palabra)){ //comprobamos que no haya otro nombre añadido procedente de este archivo y comprobamos que la palabra sea un nombre
             nombreProveedor.add(palabra);
         }
@@ -95,9 +101,7 @@ public class ExtractorPDF {
             nifCliente.add(palabra);
         }
         
-        if(fechaFactura.size() == numArchivo && Validador.esFecha(palabra)){ //comprobamos que no haya otra fechaañadido procedente de este archivo y comprobamos que la palabra sea una fecha
-            fechaFactura.add(palabra);
-        }
+        
     }
     
     /**Función que comprueba si no se ha encontrado algún dato del archivo y marca
@@ -122,4 +126,21 @@ public class ExtractorPDF {
         }
       
     }
+    
+    /**Función que elimina los caracteres especiales de un String para facilitar su análisis.
+     * @param entrada la palabra a trabajar, como String
+     * @return la entrada sin caracteres especiales, como String
+     */
+    private static String eliminaCaracteresEspeciales(String entrada){
+        return entrada.replaceAll("\\W+","");
+    }
+    
+    /**Función que deja solo los caracteres alfanuméricos de un String para facilitar su análisis.
+     * @param entrada la palabra a trabajar, como String
+     * @return la entrada con solo caracteres alfanuméricos, como String
+     */
+    private static String soloCaracteresAlfanumericos(String entrada){
+        return entrada.replaceAll("[^A-Za-z0-9]","");
+    }
+    
 }

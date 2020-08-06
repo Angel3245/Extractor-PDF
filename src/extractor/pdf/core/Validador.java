@@ -25,8 +25,21 @@ import java.util.regex.Pattern;
 public abstract class Validador {
 
     public enum TipoUltCaracter { //para la función esCif
-            LETRA,NUMERO,AMBOS};
-    
+        LETRA, NUMERO, AMBOS
+    };
+
+    public static boolean esTotal(String entrada) {
+        if (entrada.contains(",")) { //Si la parte decimal está expresada con coma la transformamos en punto
+            entrada = entrada.replace(",", ".");
+        }
+        try {
+            Float.parseFloat(entrada); //Intentamos convertir el dato en un float, si salta una excepción sabemos que no es un total
+            return true;
+        } catch (Exception exc) {
+            return false;
+        }
+    }
+
     public static boolean esDni(String entrada) {
         // Array con las letras posibles del dni en su posiciÃ³n
         char[] letraDni = {
