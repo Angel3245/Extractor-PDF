@@ -109,7 +109,7 @@ public abstract class Validador {
 
     public static boolean esCif(String entrada) {
 
-        if (entrada != null) {
+        if (entrada != null && !entrada.equals("") ) {
             final String cifUP = entrada.toUpperCase();
 
             if ("ABCDEFGHJKLMNPQRSUVW".indexOf(cifUP.charAt(0)) == -1) {

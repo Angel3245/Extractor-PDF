@@ -45,19 +45,23 @@ public class ExtractorPDF {
         Vector<String> palabrasArchivo;
         for (int i = 0; i < archivos.length; i++){
             if (archivos[i].isFile() && archivos[i].getName().endsWith(".pdf")){ //esta línea se salta otros directorios / carpetas o archivos que no sean pdf
+                
                 //extraer texto del pdf
                 palabrasArchivo = extraeTextoPalabras(archivos[i]);
                 
                 //iterar entre las palabras del texto
-                for(String palabra: palabrasArchivo){
+                //for(String palabra: palabrasArchivo){ (Con for, no eficiente)
+                while(!palabrasArchivo.isEmpty() && !datosExtraidos(numArchivo)){
                     //método para analizar palabra a palabra
-                    analizaPalabra(palabra,numArchivo);   
+                    analizaPalabra(palabrasArchivo.remove(0),numArchivo);   
                 }
                 
                 //comprobamos si algún dato no se ha encontrado y marcamos el error
-                compruebaFaltas(numArchivo);
-                //pasamos al siguiente archivo
+                arreglaFaltas(numArchivo);
+                
+                //contamos cuantos archivos llevamos analizados
                 numArchivo++;
+                
             }
         }
         //crear un archivo nuevo con los datos organizados (proximamente), de momento muestra los datos por pantalla
@@ -81,34 +85,52 @@ public class ExtractorPDF {
      * dato correspondiente.
      * @param palabra el dato a analizar, como String
      * @param numArchivo el archivo que estamos analizando, como int
+     * @return true o false dependiendo de si la palabra analizada es un dato o no
      */
-    private static void analizaPalabra(String palabra, int numArchivo){
+    private static boolean analizaPalabra(String palabra, int numArchivo){
 
         if(fechaFactura.size() == numArchivo && Validador.esFecha(palabra)){ //comprobamos que no haya otra fechaañadido procedente de este archivo y comprobamos que la palabra sea una fecha
             fechaFactura.add(palabra);
+            return true;
         }
         
         palabra = soloCaracteresAlfanumericos(palabra);
         if(nombreProveedor.size() == numArchivo && Validador.esNombre(palabra)){ //comprobamos que no haya otro nombre añadido procedente de este archivo y comprobamos que la palabra sea un nombre
             nombreProveedor.add(palabra);
+            return true;
         }
         
         if(cifProveedor.size() == numArchivo && Validador.esCif(palabra)){ //comprobamos que no haya otro cif añadido procedente de este archivo y comprobamos que la palabra sea un cif
             cifProveedor.add(palabra);
+            return true;
         }
         
         if(nifCliente.size() == numArchivo && Validador.esNif(palabra)){ //comprobamos que no haya otro nif añadido procedente de este archivo y comprobamos que la palabra sea un nif
             nifCliente.add(palabra);
+            return true;
         }
         
+        return false;
         
+        
+    }
+    
+    /**Función que comprueba si están todos los datos extraídos.
+     * @param numArchivo el archivo que se ha analizado, como int
+     * @return true o false dependiendo de si están todos los datos extraídos o no
+     */
+    private static boolean datosExtraidos(int numArchivo){
+        if(nombreProveedor.size() == numArchivo || cifProveedor.size() == numArchivo || nifCliente.size() == numArchivo || fechaFactura.size() == numArchivo){
+            return false;
+        }
+        return true;
     }
     
     /**Función que comprueba si no se ha encontrado algún dato del archivo y marca
      * el error.
      * @param numArchivo el archivo que se ha analizado, como int
      */
-    private static void compruebaFaltas(int numArchivo){
+    private static void arreglaFaltas(int numArchivo){
         if(nombreProveedor.size() == numArchivo){
             nombreProveedor.add("*ERROR");
         }
