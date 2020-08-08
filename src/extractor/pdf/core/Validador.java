@@ -238,49 +238,53 @@ public abstract class Validador {
     //si la palabra después de espacio minúscula es :de los//de//del//de la//de las... y después 
     //hay una mayúscula habría que seguir hasta el siguiente espacio minúscula
     public static boolean esNombre(String entrada) {
+        
+        if (entrada != null && !entrada.equals("") ) {
+            String array[] = entrada.split(" ");
+            int numPal = array.length;
 
-        String array[] = entrada.split(" ");
-        int numPal = array.length;
-
-        //elimino las palabras de, del, la, los, las, y, do, da, dos, das, e del array
-        for (int i = 0; i < numPal; i++) {
-            if (array[i].equals("de") || array[i].equals("del") || array[i].equals("la")
-                    || array[i].equals("los") || array[i].equals("las") || array[i].equals("y")
-                    || array[i].equals("do") || array[i].equals("da") || array[i].equals("dos")
-                    || array[i].equals("das") || array[i].equals("e")) {
-                for (int e = i + 1; e < array.length; e++) {
-                    array[e - 1] = array[e];
+            //elimino las palabras de, del, la, los, las, y, do, da, dos, das, e del array
+            for (int i = 0; i < numPal; i++) {
+                if (array[i].equals("de") || array[i].equals("del") || array[i].equals("la")
+                        || array[i].equals("los") || array[i].equals("las") || array[i].equals("y")
+                        || array[i].equals("do") || array[i].equals("da") || array[i].equals("dos")
+                        || array[i].equals("das") || array[i].equals("e")) {
+                    for (int e = i + 1; e < array.length; e++) {
+                        array[e - 1] = array[e];
+                    }
+                    numPal--;
+                    i = i - 1;
                 }
-                numPal--;
-                i = i - 1;
+
             }
 
-        }
-
-        for (int i = 0; i < numPal; i++) {
-            //compruebo que las palabras sobrantes empiezan por mayúscula
-            if (!esMayuscula(array[i], 0)) {
-                return false;
-            }
-            //compruebo que las demás letras sean minúsculas
-            for (int e = 1; e < array[i].length(); e++) {
-                if (!esMinuscula(array[i], e)) {
-                    //si no son minusculas puede ser -May
-                    try {
-                        if (array[i].charAt(e) == '-' && esMayuscula(array[i], e + 1)) {
-                            e++; //correcto y sigo verificando
-                        } else {
-                            return false;//Si no es minúscula ni -May
+            for (int i = 0; i < numPal; i++) {
+                //compruebo que las palabras sobrantes empiezan por mayúscula
+                if (!esMayuscula(array[i], 0)) {
+                    return false;
+                }
+                //compruebo que las demás letras sean minúsculas
+                for (int e = 1; e < array[i].length(); e++) {
+                    if (!esMinuscula(array[i], e)) {
+                        //si no son minusculas puede ser -May
+                        try {
+                            if (array[i].charAt(e) == '-' && esMayuscula(array[i], e + 1)) {
+                                e++; //correcto y sigo verificando
+                            } else {
+                                return false;//Si no es minúscula ni -May
+                            }
+                        } catch (Exception exc) {
+                            return false;
                         }
-                    } catch (Exception exc) {
-                        return false;
                     }
                 }
+
             }
 
+            return true;
         }
-
-        return true;
+        
+        return false;
     }
 
     private static boolean esMayuscula(String palabra, int pos) {
