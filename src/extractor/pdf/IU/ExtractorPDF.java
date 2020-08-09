@@ -51,10 +51,14 @@ public class ExtractorPDF {
                 
                 //iterar entre las palabras del texto
                 //for(String palabra: palabrasArchivo){ (Con for, no eficiente)
+                int e=0;//***creo que falta***
                 while(!palabrasArchivo.isEmpty() && !datosExtraidos(numArchivo)){
                     //método para analizar palabra a palabra
-                    analizaPalabra(palabrasArchivo.remove(0),numArchivo);   
+                    analizaPalabra(palabrasArchivo.remove(e),numArchivo); //***¿¿¿remove(0)???
+                    e++;//***creo que falta***
                 }
+                
+                buscarNombre(palabrasArchivo, numArchivo);
                 
                 //comprobamos si algún dato no se ha encontrado y marcamos el error
                 arreglaFaltas(numArchivo);
@@ -94,11 +98,12 @@ public class ExtractorPDF {
             return true;
         }
         
-        palabra = soloCaracteresAlfanumericos(palabra);
-        if(nombreProveedor.size() == numArchivo && Validador.esNombre(palabra)){ //comprobamos que no haya otro nombre añadido procedente de este archivo y comprobamos que la palabra sea un nombre
-            nombreProveedor.add(palabra);
-            return true;
-        }
+        palabra = soloCaracteresAlfanumericos(palabra); 
+// Un nombre son varias palabras por lo que se comprueba a parte
+//        if(nombreProveedor.size() == numArchivo && Validador.esNombre(palabra)){ //comprobamos que no haya otro nombre añadido procedente de este archivo y comprobamos que la palabra sea un nombre
+//            nombreProveedor.add(palabra);
+//            return true;
+//        }
         
         if(cifProveedor.size() == numArchivo && Validador.esCif(palabra)){ //comprobamos que no haya otro cif añadido procedente de este archivo y comprobamos que la palabra sea un cif
             cifProveedor.add(palabra);
@@ -114,6 +119,78 @@ public class ExtractorPDF {
         
         
     }
+    
+    /**Función que busca un nombre en el Vector que recibe por parámetro y almacena en el String[]
+     * dato correspondiente.
+     * @param texto el Vector de Strings con todas las palabras 
+     * @param numArchivo el archivo que estamos analizando, como int
+     * @return true o false dependiendo de si se encuentra y almacena un nombre o no
+     */
+    private static boolean buscarNombre(Vector<String> texto, int numArchivo) {
+        String nom = "";
+        char letra;
+
+        int i = 0;
+        letra = texto.get(i).charAt(0);
+        while (i < texto.size() && !Validador.esMayuscula(letra)) {
+            letra = texto.get(i).charAt(0);
+            i++;
+        }
+        //Al salir ha localizado una mayúscula en la posic i-1
+        int comienzoNombre=-1;
+        if (i == 0) {
+            comienzoNombre = 0;
+        } else {
+            comienzoNombre = i - 1;
+        }
+
+        int finNombre = -1;
+
+        while (i < texto.size() && finNombre == -1) {
+            if (Validador.esMinuscula(texto.get(i).charAt(0))) {
+                if (texto.get(i).equals("de") || texto.get(i).equals("del") || texto.get(i).equals("la")
+                        || texto.get(i).equals("los") || texto.get(i).equals("las") || texto.get(i).equals("y")
+                        || texto.get(i).equals("do") || texto.get(i).equals("da") || texto.get(i).equals("dos")
+                        || texto.get(i).equals("das") || texto.get(i).equals("e")) {
+                    if (!Validador.esMinuscula(texto.get(i + 1).charAt(0))) {
+                        i++;
+                    } else {
+                        //El nombre se ha acabado
+                        finNombre = i - 1;
+                    }
+                } else {
+                    //El nombre se ha acabado
+                    finNombre = i - 1;
+                }
+            } else {
+                i++;
+            }
+
+        }
+
+        if (i >= texto.size()) {
+            finNombre = texto.size() - 1;
+        }
+
+        if (comienzoNombre != -1) {
+            int n = comienzoNombre;
+            while (n <= finNombre) {
+                nom += texto.get(n) + " ";
+                n++;
+            }
+            nom = nom.trim();
+
+        } else {
+            return false;
+        }
+
+        if (nombreProveedor.size() == numArchivo && Validador.esNombre(nom)) {
+            nombreProveedor.add(nom);
+            return true;
+        }
+        return false;
+    }
+    
     
     /**Función que comprueba si están todos los datos extraídos.
      * @param numArchivo el archivo que se ha analizado, como int

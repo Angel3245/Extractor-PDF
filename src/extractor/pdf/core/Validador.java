@@ -289,6 +289,11 @@ public abstract class Validador {
 
     private static boolean esMayuscula(String palabra, int pos) {
         char letr = palabra.charAt(pos);
+        return esMayuscula(letr);
+
+    }
+    
+    public static boolean esMayuscula(char letr) {
         return ((letr >= 'A' && letr <= 'Z') || letr == 'Á'
                 || letr == 'É' || letr == 'Í' || letr == 'Ó' || letr == 'Ú');
 
@@ -296,6 +301,11 @@ public abstract class Validador {
 
     private static boolean esMinuscula(String palabra, int pos) {
         char letr = palabra.charAt(pos);
+        return esMinuscula(letr);
+
+    }
+    
+    public static boolean esMinuscula(char letr) {
         return ((letr >= 'a' && letr <= 'z') || letr == 'á'
                 || letr == 'é' || letr == 'í' || letr == 'ó' || letr == 'ú');
 
