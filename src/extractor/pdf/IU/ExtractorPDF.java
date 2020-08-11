@@ -29,7 +29,7 @@ public class ExtractorPDF {
     public static void inicio(){
         //pedir ruta
         File ruta = ES.pideDirectorio();
-        //iterar entre los archivos del directorio
+        //listar los archivos del directorio
         File [] archivos = ruta.listFiles();
         //creamos los arrayList de los datos
         nombreProveedor = new ArrayList<String>(archivos.length); 
@@ -43,6 +43,7 @@ public class ExtractorPDF {
         int numArchivo = 0;
 
         Vector<String> palabrasArchivo;
+        //iterar entre los archivos
         for (int i = 0; i < archivos.length; i++){
             if (archivos[i].isFile() && archivos[i].getName().endsWith(".pdf")){ //esta línea se salta otros directorios / carpetas o archivos que no sean pdf
                 
@@ -50,15 +51,13 @@ public class ExtractorPDF {
                 palabrasArchivo = extraeTextoPalabras(archivos[i]);
                 
                 //iterar entre las palabras del texto
-                //for(String palabra: palabrasArchivo){ (Con for, no eficiente)
-                int e=0;//***creo que falta***
+                //for(String palabra: palabrasArchivo){ (Con forEach, no eficiente)
                 while(!palabrasArchivo.isEmpty() && !datosExtraidos(numArchivo)){
                     //método para analizar palabra a palabra
-                    analizaPalabra(palabrasArchivo.remove(e),numArchivo); //***¿¿¿remove(0)???
-                    e++;//***creo que falta***
+                    analizaPalabra(palabrasArchivo.remove(0),numArchivo); //Eliminamos el primer elemento del vector de Strings hasta que no quede ningún elemento, usando un contador nos saldríamos del array
                 }
                 
-                buscarNombre(palabrasArchivo, numArchivo);
+                //buscarNombre(palabrasArchivo, numArchivo); //Al llegar aquí palabrasArchivo está vacío, no podemos buscar nada
                 
                 //comprobamos si algún dato no se ha encontrado y marcamos el error
                 arreglaFaltas(numArchivo);
@@ -93,7 +92,7 @@ public class ExtractorPDF {
      */
     private static boolean analizaPalabra(String palabra, int numArchivo){
 
-        if(fechaFactura.size() == numArchivo && Validador.esFecha(palabra)){ //comprobamos que no haya otra fechaañadido procedente de este archivo y comprobamos que la palabra sea una fecha
+        if(fechaFactura.size() == numArchivo && Validador.esFecha(palabra)){ //comprobamos que no haya otra fecha añadida procedente de este archivo y comprobamos que la palabra sea una fecha
             fechaFactura.add(palabra);
             return true;
         }
