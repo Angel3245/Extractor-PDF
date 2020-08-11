@@ -51,10 +51,12 @@ public class ExtractorPDF {
                 palabrasArchivo = extraeTextoPalabras(archivos[i]);
                 
                 //iterar entre las palabras del texto
+                int e = 0;
                 //for(String palabra: palabrasArchivo){ (Con forEach, no eficiente)
                 while(!palabrasArchivo.isEmpty() && !datosExtraidos(numArchivo)){
                     //método para analizar palabra a palabra
-                    analizaPalabra(palabrasArchivo.remove(0),numArchivo); //Eliminamos el primer elemento del vector de Strings hasta que no quede ningún elemento, usando un contador nos saldríamos del array
+                    analizaPalabra(palabrasArchivo.get(e),numArchivo); //Eliminamos el primer elemento del vector de Strings hasta que no quede ningún elemento, usando un contador nos saldríamos del array
+                    e++;
                 }
                 
                 //buscarNombre(palabrasArchivo, numArchivo); //Al llegar aquí palabrasArchivo está vacío, no podemos buscar nada

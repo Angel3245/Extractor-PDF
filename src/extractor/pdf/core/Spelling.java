@@ -13,7 +13,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-class Spelling {
+public class Spelling {
 
 	private final HashMap<String, Integer> nWords = new HashMap<String, Integer>();
 
@@ -47,7 +47,7 @@ class Spelling {
 	}
 
 	public static void main(String args[]) throws IOException {
-		if(args.length > 0) System.out.println((new Spelling("diccionario.txt")).correct(args[0]));
+		if(args.length > 0) System.out.println((new Spelling("extractor.pdf.core.diccionario.txt")).correct(args[0]));
 	}
 
 }

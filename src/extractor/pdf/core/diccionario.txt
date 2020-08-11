@@ -1,0 +1,7 @@
+CIF
+Factura
+NIF
+Fecha
+Cliente
+Nombre
+Total
