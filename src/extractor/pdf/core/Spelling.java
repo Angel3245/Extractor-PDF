@@ -46,8 +46,4 @@ public class Spelling {
 		return candidates.size() > 0 ? candidates.get(Collections.max(candidates.keySet())) : word;
 	}
 
-	public static void main(String args[]) throws IOException {
-		if(args.length > 0) System.out.println((new Spelling("extractor.pdf.core.diccionario.txt")).correct(args[0]));
-	}
-
 }

@@ -24,7 +24,9 @@ public class ExtractorPDF {
     private static List<String> nifCliente; 
     private static List<String> numeroFactura;  
     private static List<String> fechaFactura;  
-    private static List<String> totalFactura; 
+    private static List<Double> totalFactura; 
+    //creamos una variable temporal para almacenar el total
+    private static double totalTemp = 0.00;
     
     public static void inicio(){
         //pedir ruta
@@ -38,7 +40,8 @@ public class ExtractorPDF {
         nifCliente = new ArrayList<String>(archivos.length); 
         numeroFactura = new ArrayList<String>(archivos.length);  
         fechaFactura = new ArrayList<String>(archivos.length);  
-        totalFactura = new ArrayList<String>(archivos.length); 
+        totalFactura = new ArrayList<Double>(archivos.length); 
+
         //numero de archivos analizados
         int numArchivo = 0;
 
@@ -60,6 +63,10 @@ public class ExtractorPDF {
                 }
                 
                 //buscarNombre(palabrasArchivo, numArchivo); //Al llegar aquí palabrasArchivo está vacío, no podemos buscar nada
+                
+                if(totalTemp > 0.0){ //Si hemos encontrado el total lo añadimos
+                    totalFactura.add(totalTemp);
+                }
                 
                 //comprobamos si algún dato no se ha encontrado y marcamos el error
                 arreglaFaltas(numArchivo);
@@ -114,6 +121,10 @@ public class ExtractorPDF {
         if(nifCliente.size() == numArchivo && Validador.esNif(palabra)){ //comprobamos que no haya otro nif añadido procedente de este archivo y comprobamos que la palabra sea un nif
             nifCliente.add(palabra);
             return true;
+        }
+        
+        if(Validador.esTotal(palabra) && Float.parseFloat(palabra) > totalTemp){
+            totalTemp = Float.parseFloat(palabra);
         }
         
         return false;
