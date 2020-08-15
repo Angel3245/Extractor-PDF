@@ -29,15 +29,16 @@ public abstract class Validador {
     };
 
     public static boolean esTotal(String entrada) {
-        if (entrada.contains(",")) { //Si la parte decimal está expresada con coma la transformamos en punto
+        if (entrada.contains(",") || entrada.contains(".")) { //Si la parte decimal está expresada con coma la transformamos en punto
             entrada = entrada.replace(",", ".");
+            try {
+                Double.parseDouble(entrada); //Intentamos convertir el dato en un double, si salta una excepción sabemos que no es un posible total
+                return true;
+            } catch (Exception exc) {
+                return false;
+            }
         }
-        try {
-            Float.parseFloat(entrada); //Intentamos convertir el dato en un float, si salta una excepción sabemos que no es un total
-            return true;
-        } catch (Exception exc) {
-            return false;
-        }
+        return false;
     }
 
     public static boolean esDni(String entrada) {

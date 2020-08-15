@@ -30,5 +30,10 @@ public class TestValidador {
                 + "Paco: " + Validador.esNombre("Paco") + "\n"
                 + "estevan: " + Validador.esNombre("estevan") + "\n"
                 + "E: " + Validador.esNombre("E") + "\n");
+        
+        System.out.println("Probando esTotal:\n"
+                + "13.7: " + Validador.esTotal("13.7") + "\n"
+                + "0,99: " + Validador.esTotal("0,9") + "\n"
+                + "5: " + Validador.esTotal("5") + "\n");
     }
 }

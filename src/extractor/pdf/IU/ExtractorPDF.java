@@ -24,7 +24,7 @@ public class ExtractorPDF {
     private static List<String> nifCliente; 
     private static List<String> numeroFactura;  
     private static List<String> fechaFactura;  
-    private static List<Double> totalFactura; 
+    private static List<String> totalFactura; 
     //creamos una variable temporal para almacenar el total
     private static double totalTemp = 0.00;
     
@@ -40,7 +40,7 @@ public class ExtractorPDF {
         nifCliente = new ArrayList<String>(archivos.length); 
         numeroFactura = new ArrayList<String>(archivos.length);  
         fechaFactura = new ArrayList<String>(archivos.length);  
-        totalFactura = new ArrayList<Double>(archivos.length); 
+        totalFactura = new ArrayList<String>(archivos.length); 
 
         //numero de archivos analizados
         int numArchivo = 0;
@@ -56,7 +56,7 @@ public class ExtractorPDF {
                 //iterar entre las palabras del texto
                 int e = 0;
                 //for(String palabra: palabrasArchivo){ (Con forEach, no eficiente)
-                while(!palabrasArchivo.isEmpty() && !datosExtraidos(numArchivo)){
+                while(palabrasArchivo.size() > e && !datosExtraidos(numArchivo)){
                     //método para analizar palabra a palabra
                     analizaPalabra(palabrasArchivo.get(e),numArchivo); //Eliminamos el primer elemento del vector de Strings hasta que no quede ningún elemento, usando un contador nos saldríamos del array
                     e++;
@@ -65,7 +65,7 @@ public class ExtractorPDF {
                 //buscarNombre(palabrasArchivo, numArchivo); //Al llegar aquí palabrasArchivo está vacío, no podemos buscar nada
                 
                 if(totalTemp > 0.0){ //Si hemos encontrado el total lo añadimos
-                    totalFactura.add(totalTemp);
+                    totalFactura.add(String.valueOf(totalTemp));
                 }
                 
                 //comprobamos si algún dato no se ha encontrado y marcamos el error
@@ -123,8 +123,9 @@ public class ExtractorPDF {
             return true;
         }
         
-        if(Validador.esTotal(palabra) && Float.parseFloat(palabra) > totalTemp){
-            totalTemp = Float.parseFloat(palabra);
+        if(Validador.esTotal(palabra) && Double.parseDouble(palabra) > totalTemp){
+            totalTemp = Double.parseDouble(palabra);
+            return true;
         }
         
         return false;
@@ -209,7 +210,7 @@ public class ExtractorPDF {
      * @return true o false dependiendo de si están todos los datos extraídos o no
      */
     private static boolean datosExtraidos(int numArchivo){
-        if(nombreProveedor.size() == numArchivo || cifProveedor.size() == numArchivo || nifCliente.size() == numArchivo || fechaFactura.size() == numArchivo){
+        if(nombreProveedor.size() == numArchivo || cifProveedor.size() == numArchivo || nifCliente.size() == numArchivo || fechaFactura.size() == numArchivo || totalFactura.size() == numArchivo){
             return false;
         }
         return true;
@@ -234,6 +235,10 @@ public class ExtractorPDF {
         
         if(fechaFactura.size() == numArchivo){
             fechaFactura.add("*ERROR");
+        }
+        
+        if(totalFactura.size() == numArchivo){
+            totalFactura.add("*ERROR");
         }
       
     }
