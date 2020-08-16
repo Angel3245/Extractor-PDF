@@ -62,7 +62,7 @@ public class ExtractorPDF {
                     e++;
                 }
                 
-                //buscarNombre(palabrasArchivo, numArchivo); //Al llegar aquí palabrasArchivo está vacío, no podemos buscar nada
+                buscarNombre(palabrasArchivo, numArchivo);
                 
                 if(totalTemp > 0.0){ //Si hemos encontrado el total lo añadimos
                     totalFactura.add(String.valueOf(totalTemp));
@@ -140,68 +140,73 @@ public class ExtractorPDF {
      * @return true o false dependiendo de si se encuentra y almacena un nombre o no
      */
     private static boolean buscarNombre(Vector<String> texto, int numArchivo) {
-        String nom = "";
-        char letra;
 
-        int i = 0;
-        letra = texto.get(i).charAt(0);
-        while (i < texto.size() && !Validador.esMayuscula(letra)) {
-            letra = texto.get(i).charAt(0);
-            i++;
-        }
-        //Al salir ha localizado una mayúscula en la posic i-1
-        int comienzoNombre=-1;
-        if (i == 0) {
-            comienzoNombre = 0;
-        } else {
-            comienzoNombre = i - 1;
-        }
+        //Eliminar las palabras DE, DEL, LA, LOS, LAS, Y, DO, DA, DOS, DAS, E del texto
+        int numPal = texto.size();
 
-        int finNombre = -1;
+        for (int i = 0; i < numPal; i++) {
 
-        while (i < texto.size() && finNombre == -1) {
-            if (Validador.esMinuscula(texto.get(i).charAt(0))) {
-                if (texto.get(i).equals("de") || texto.get(i).equals("del") || texto.get(i).equals("la")
-                        || texto.get(i).equals("los") || texto.get(i).equals("las") || texto.get(i).equals("y")
-                        || texto.get(i).equals("do") || texto.get(i).equals("da") || texto.get(i).equals("dos")
-                        || texto.get(i).equals("das") || texto.get(i).equals("e")) {
-                    if (!Validador.esMinuscula(texto.get(i + 1).charAt(0))) {
-                        i++;
-                    } else {
-                        //El nombre se ha acabado
-                        finNombre = i - 1;
-                    }
-                } else {
-                    //El nombre se ha acabado
-                    finNombre = i - 1;
+            if (texto.get(i).equals("DE") || texto.get(i).equals("DEL") || texto.get(i).equals("LA")
+                    || texto.get(i).equals("LOS") || texto.get(i).equals("LAS") || texto.get(i).equals("Y")
+                    || texto.get(i).equals("DO") || texto.get(i).equals("DA") || texto.get(i).equals("DOS")
+                    || texto.get(i).equals("DAS") || texto.get(i).equals("E")) {
+                for (int e = i + 1; e < texto.size(); e++) {
+                    texto.remove(e - 1);
                 }
+                numPal--;
+                i = i - 1;
+            }
+
+        }
+
+        //Eliminar los posibles guiones de un nombre   
+//        for (int i = 0; i < numPal; i++) {
+//            texto.add(i, soloCaracteresAlfanumericos(texto.remove(i)));
+//        }
+
+        for(int i=0; i<numPal;i++){
+            System.out.println(texto.get(i));
+        }
+        
+        //Buscamos el nombre
+        String nombre = "";
+        int e = 0;
+
+        while (e < numPal && !nomEncontrado(nombre)) {
+
+            if (Validador.esNombre(texto.get(e)) || Validador.esApell(texto.get(e))) {
+                nombre += texto.get(e);
+                e++;
             } else {
-                i++;
+                nombre = "";
+                e++;
             }
 
         }
 
-        if (i >= texto.size()) {
-            finNombre = texto.size() - 1;
-        }
-
-        if (comienzoNombre != -1) {
-            int n = comienzoNombre;
-            while (n <= finNombre) {
-                nom += texto.get(n) + " ";
-                n++;
-            }
-            nom = nom.trim();
-
-        } else {
-            return false;
-        }
-
-        if (nombreProveedor.size() == numArchivo && Validador.esNombre(nom)) {
-            nombreProveedor.add(nom);
+        if (nombreProveedor.size() == numArchivo) { //comprobamos que no haya otro nombre añadido procedente de este archivo
+            nombreProveedor.add(nombre);
             return true;
         }
+
         return false;
+
+    }
+
+    /**Función que comprueba si ya se ha encontrado el nombre verificando si las 
+     * dos últimas palabras son apellido
+     * @param nom el nombre a comprobar, como String
+     * @return true si el nombre está completo, false en caso contrario
+     */
+    private static boolean nomEncontrado(String nom) {
+        nom = nom.trim();
+        String[] nombre = nom.split(" ");
+        if (nombre.length < 3) {
+            return false;
+        } else if (!Validador.esApell(nombre[nombre.length - 1]) || !Validador.esApell(nombre[nombre.length - 2])) {
+            return false;
+        }
+        return true;
     }
     
     

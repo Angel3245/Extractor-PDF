@@ -8,6 +8,10 @@ package extractor.pdf.core;
 import java.io.File;
 import java.nio.file.*;
 import com.qoppa.pdfText.PDFText;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -62,5 +66,45 @@ public class Archivo {
             System.out.println(exc);
         }
         return texto;
+    }
+    
+    
+    public String[] txtExtraeTextoPalabras(String splt) {
+
+        try {
+
+            String[] texto = null;
+
+            File archivo = new File(this.getRuta());
+            FileReader fr = null;
+            BufferedReader br = null;
+
+            fr = new FileReader(archivo);
+            br = new BufferedReader(fr);
+            
+            // Lectura del fichero
+            if (splt.equals(" ")) {
+                String linea = br.readLine();
+                texto = linea.split(splt);
+
+            } else if (splt.equals("\n")) {
+                String linea;
+                String text="";
+                while ((linea = br.readLine()) != null) {
+                    text=text+" "+linea;    
+                }
+                text=text.trim();
+                texto=text.split(" ");
+            }
+            return texto;
+
+        } catch (FileNotFoundException ex) {
+            System.out.println(ex.getMessage());
+            return null;
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+            return null;
+        }
+
     }
 }

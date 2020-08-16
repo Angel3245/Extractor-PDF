@@ -5,6 +5,7 @@
  */
 package extractor.pdf.core;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -235,57 +236,67 @@ public abstract class Validador {
         return toret;
     }
 
-    //entrada: es un String desde una mayúscula hasta la última letra seguida de espacio minúscula
-    //si la palabra después de espacio minúscula es :de los//de//del//de la//de las... y después 
-    //hay una mayúscula habría que seguir hasta el siguiente espacio minúscula
-    public static boolean esNombre(String entrada) {
+    
+    public static boolean esNombre(String palabra) {
+        if (esMayuscula(palabra.charAt(0))||esMinuscula(palabra.charAt(0))) {
         
-        if (entrada != null && !entrada.equals("") ) {
-            String array[] = entrada.split(" ");
-            int numPal = array.length;
+            File nombresPosibles = new File("src/extractor/pdf/core/nombres.txt");
+            String[] nomPos = extraeTextoPalabrasTxt(nombresPosibles, "\n");
 
-            //elimino las palabras de, del, la, los, las, y, do, da, dos, das, e del array
-            for (int i = 0; i < numPal; i++) {
-                if (array[i].equals("de") || array[i].equals("del") || array[i].equals("la")
-                        || array[i].equals("los") || array[i].equals("las") || array[i].equals("y")
-                        || array[i].equals("do") || array[i].equals("da") || array[i].equals("dos")
-                        || array[i].equals("das") || array[i].equals("e")) {
-                    for (int e = i + 1; e < array.length; e++) {
-                        array[e - 1] = array[e];
-                    }
-                    numPal--;
-                    i = i - 1;
-                }
-
-            }
-
-            for (int i = 0; i < numPal; i++) {
-                //compruebo que las palabras sobrantes empiezan por mayúscula
-                if (!esMayuscula(array[i], 0)) {
-                    return false;
-                }
-                //compruebo que las demás letras sean minúsculas
-                for (int e = 1; e < array[i].length(); e++) {
-                    if (!esMinuscula(array[i], e)) {
-                        //si no son minusculas puede ser -May
-                        try {
-                            if (array[i].charAt(e) == '-' && esMayuscula(array[i], e + 1)) {
-                                e++; //correcto y sigo verificando
-                            } else {
-                                return false;//Si no es minúscula ni -May
-                            }
-                        } catch (Exception exc) {
-                            return false;
-                        }
+//        for(int i=0; i<nomPos.length; i++){
+//            System.out.println(nomPos[i]);
+//        }
+            int inicio = 0;
+            int fin = nomPos.length - 1;
+            int medio = 0;
+            System.out.println(inicio+"-"+medio+"-"+fin);
+            System.out.println(palabra);
+            while (nomPos[inicio].compareTo(nomPos[fin]) <= 0) {
+                medio = (inicio + fin) / 2;
+                if (nomPos[medio].compareTo(palabra) < 0) {
+                    inicio = medio + 1;
+                } else {
+                    if (nomPos[medio].compareTo(palabra) > 0) {
+                        fin = medio - 1;
+                    } else {
+                        return true;//Está en la pos medio
                     }
                 }
-
             }
 
-            return true;
         }
-        
-        return false;
+        return false; //No está
+    }
+    
+    
+    public static boolean esApell(String palabra) {
+
+        if (esMayuscula(palabra.charAt(0))||esMinuscula(palabra.charAt(0))) {
+
+            File apellidosPosibles = new File("src/extractor/pdf/core/apellidos.txt");
+            String[] apellPos = extraeTextoPalabrasTxt(apellidosPosibles, " ");
+
+//        for (int i = 0; i < apellPos.length; i++) {
+//            System.out.println(apellPos[i]);
+//        }
+            int inicio = 0;
+            int fin = apellPos.length - 1;
+            int medio;
+            while (apellPos[inicio].compareTo(apellPos[fin]) <= 0) {
+                medio = (inicio + fin) / 2;
+                if (apellPos[medio].compareTo(palabra) < 0) {
+                    inicio = medio + 1;
+                } else {
+                    if (apellPos[medio].compareTo(palabra) > 0) {
+                        fin = medio - 1;
+                    } else {
+                        return true;//Está en la pos medio
+                    }
+                }
+            }
+        }
+        return false; //No está
+
     }
 
     private static boolean esMayuscula(String palabra, int pos) {
@@ -311,4 +322,18 @@ public abstract class Validador {
                 || letr == 'é' || letr == 'í' || letr == 'ó' || letr == 'ú');
 
     }
+    
+    /**
+     * Función que devuelve un array de Strings formado por las palabras del
+     * archivo txt recibido por parámetro.
+     *
+     * @param archivo el txt de donde se extraen las palabras, como File
+     * @return un array de Strings con las palabras extraídas
+     */
+    private static String[] extraeTextoPalabrasTxt(File archivo, String splt) {
+        Archivo actual = new Archivo(archivo);
+
+        return actual.txtExtraeTextoPalabras(splt);
+    }
+
 }
