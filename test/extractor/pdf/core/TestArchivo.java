@@ -12,7 +12,7 @@ package extractor.pdf.core;
 public class TestArchivo {
     public static void main(String[] args) {
         Archivo archivo = new Archivo("C:/Users/Angel/Desktop/f.pdf");
-        System.out.println(archivo.pdfExtraeTexto());
+        System.out.println(archivo.extraeTextoEnArea());
     }
     
 }

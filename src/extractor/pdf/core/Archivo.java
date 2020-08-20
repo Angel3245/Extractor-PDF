@@ -8,6 +8,7 @@ package extractor.pdf.core;
 import java.io.File;
 import java.nio.file.*;
 import com.qoppa.pdfText.PDFText;
+import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -106,5 +107,21 @@ public class Archivo {
             return null;
         }
 
+    }
+    
+    public String extraeTextoEnArea(){
+        String texto = "";
+        try{
+            PDFText pdfText = new PDFText(this.getRuta(), null);
+            
+            Rectangle2D area = new Rectangle2D.Float();
+            area.setFrame(100, 150, 200,100);
+            
+            texto = pdfText.getTextInArea(0, area);
+        }
+        catch(com.qoppa.pdf.PDFException exc){
+            System.out.println(exc);
+        }
+        return texto;
     }
 }
